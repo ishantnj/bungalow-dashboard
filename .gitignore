@@ -1,0 +1,6 @@
+﻿*.xlsx
+*.docx
+~$*
+Splitwise/
+.DS_Store
+Thumbs.db

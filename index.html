@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bungalow Command Center — Mrs. Nidhee Jain</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<style>
+:root{color-scheme:light;--bg:#f5f7fa;--panel:#fff;--ink:#1a1d24;--ink-soft:#5a6478;--ink-mute:#8892a3;--line:#e3e7ee;--line-soft:#f0f2f5;--brand:#0f2540;--brand2:#2563eb;--ok:#047857;--warn:#b45309;--bad:#b91c1c;--ok-bg:#dcfce7;--warn-bg:#fef3c7;--bad-bg:#fee2e2;--info-bg:#dbeafe;--violet:#7c3aed;--violet-bg:#ede9fe}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1280px;margin:0 auto;padding:0 14px 70px}
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--brand);color:#fff;position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.topbar h1{margin:0;font-size:16px;font-weight:700}
+.topbar .meta{font-size:11px;opacity:.85}
+.topbar .right{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.topbar button,.topbar a.btn{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);color:#fff;padding:6px 10px;border-radius:6px;font:inherit;font-size:12px;cursor:pointer;min-height:32px;text-decoration:none;display:inline-flex;align-items:center}
+.topbar button.primary{background:#fff;color:var(--brand);border-color:#fff;font-weight:600}
+.saved-badge{background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600}
+
+.tabs{display:flex;gap:2px;padding:0 14px;background:var(--brand);position:sticky;top:52px;z-index:19;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:10px 14px;color:rgba(255,255,255,.7);cursor:pointer;font-weight:600;font-size:13px;border-bottom:3px solid transparent;white-space:nowrap;background:transparent;border-left:none;border-right:none;border-top:none;font-family:inherit}
+.tab:hover{color:#fff;background:rgba(255,255,255,.05)}
+.tab.active{color:#fff;border-bottom-color:#fff;background:rgba(255,255,255,.08)}
+
+.page{display:none;padding-top:14px}
+.page.active{display:block}
+
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-mute);margin:20px 0 8px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+h2 .acc{font-weight:500;font-size:11px;letter-spacing:0;color:var(--ink-mute);cursor:pointer;text-transform:none}
+.grid{display:grid;gap:10px}.g-6{grid-template-columns:repeat(6,1fr)}.g-4{grid-template-columns:repeat(4,1fr)}.g-3{grid-template-columns:repeat(3,1fr)}.g-2{grid-template-columns:repeat(2,1fr)}.g-money{grid-template-columns:1.4fr 1fr}
+@media(max-width:1024px){.g-6{grid-template-columns:repeat(3,1fr)}.g-money{grid-template-columns:1fr}}
+@media(max-width:760px){.g-4{grid-template-columns:repeat(2,1fr)}.g-3{grid-template-columns:1fr}h2{font-size:11px}.topbar h1{font-size:14px}.tab{padding:8px 12px;font-size:12px}}
+@media(max-width:480px){.g-6{grid-template-columns:repeat(2,1fr)}.g-2{grid-template-columns:1fr}}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:0 1px 2px rgba(15,37,64,.03)}
+.kpi .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-mute);font-weight:700}
+.kpi .val{font-size:19px;font-weight:700;color:var(--brand);margin-top:3px;font-variant-numeric:tabular-nums;line-height:1.15}
+.kpi .hint{font-size:11px;color:var(--ink-soft);margin-top:4px}
+.kpi.ok .val{color:var(--ok)}.kpi.warn .val{color:var(--warn)}.kpi.bad .val{color:var(--bad)}
+.pb{height:6px;background:var(--line-soft);border-radius:999px;overflow:hidden;margin-top:6px}
+.pb>div{height:100%;background:var(--ok);transition:width .3s ease}
+.stat{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;gap:10px}
+.stat .k{color:var(--ink-soft)}.stat .v{font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.stat.div{border-top:1px solid var(--line);padding-top:8px;margin-top:5px}.stat.div.b .k{font-weight:700;color:var(--ink)}.stat.div.b .v{font-weight:700;color:var(--brand);font-size:14px}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:520px}
+th{text-align:left;font-weight:600;color:var(--ink-soft);padding:7px 10px;border-bottom:1px solid var(--line);background:#fafbfc;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+tr:last-child td{border-bottom:none}
+.right{text-align:right}.money{font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:700}
+.pill.ok{background:var(--ok-bg);color:#166534}.pill.warn{background:var(--warn-bg);color:#92400e}.pill.bad{background:var(--bad-bg);color:#991b1b}.pill.info{background:var(--info-bg);color:#1e40af}.pill.gray{background:#e5e7eb;color:#374151}.pill.violet{background:var(--violet-bg);color:#6d28d9}
+.chartwrap{position:relative;height:240px}
+.editable{border-bottom:1px dashed #cbd2dc;cursor:pointer;padding:0 2px}
+.editable:hover{background:#fff8e6;border-bottom-color:var(--warn)}
+.num-input{width:130px;padding:3px 6px;border:1.5px solid var(--brand2);border-radius:5px;font:inherit;font-variant-numeric:tabular-nums;text-align:right;outline:none}
+input,select,textarea{font:inherit;border:1px solid #cbd2dc;border-radius:5px;padding:5px 8px;min-height:32px;background:#fff;color:var(--ink)}
+select{cursor:pointer}
+.action{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.action:last-child{border-bottom:none}
+.action .n{width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+details.note{background:var(--info-bg);border:1px solid #93c5fd;border-radius:8px;padding:0 12px;color:#1e3a5f;margin:8px 0}
+details.note > summary{padding:8px 0;font-weight:600;font-size:13px;cursor:pointer;color:#1e3a5f;list-style:none}
+details.note > summary::before{content:'▸ ';color:var(--ink-mute)}
+details.note[open] > summary{border-bottom:1px solid #93c5fd}
+details.note[open] > summary::before{content:'▾ '}
+details.note .body{padding:8px 0 12px;font-size:12.5px;line-height:1.55}
+.brief{background:linear-gradient(135deg,#0f2540 0%,#1e3a5f 100%);color:#fff;padding:16px 18px;border-radius:12px;margin-bottom:14px}
+.brief h3{margin:0 0 6px;font-size:13px;font-weight:600;opacity:.85;text-transform:uppercase;letter-spacing:.08em}
+.brief .canon{font-size:11px;opacity:.7;margin-top:8px;border-top:1px solid rgba(255,255,255,.15);padding-top:8px;font-family:'SF Mono','Monaco',monospace}
+.brief .bigtotal{font-size:24px;font-weight:700;margin:4px 0}
+.timeline-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+@media(max-width:760px){.timeline-strip{grid-template-columns:1fr}}
+.tl-card{padding:10px 12px;border-radius:8px;background:var(--panel);border:1px solid var(--line)}
+.tl-card.current{border-color:var(--warn);background:#fffbeb;box-shadow:0 0 0 1px var(--warn) inset}
+.tl-card .lbl{font-size:10.5px;color:var(--ink-mute);font-weight:700;text-transform:uppercase}
+.tl-card .date{font-size:15px;font-weight:700;margin-top:2px}
+.tl-card .delta{font-size:12px;font-weight:600;margin-top:2px}
+.flag{background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:12.5px;color:#78350f;margin:8px 0}
+.flag.bad{background:var(--bad-bg);border-color:#fecaca;color:#7f1d1d}
+.flag b{color:#92400e}.flag.bad b{color:var(--bad)}
+.scope-section{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:10px}
+.scope-head{padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;flex-wrap:wrap;border-radius:10px 10px 0 0}
+.scope-head:hover{background:#fafbfc}
+.scope-head .title{font-weight:700;color:var(--brand);font-size:14px;flex-grow:1}
+.scope-head .progress-mini{font-size:11px;color:var(--ink-mute);font-weight:600}
+.scope-body{padding:0 14px 14px;border-top:1px solid var(--line)}
+.scope-body.collapsed{display:none}
+.boq-section{background:#1f4e78;color:#fff;padding:6px 12px;font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase;border-radius:4px;margin:10px 0 4px}
+.boq-section.merc{background:#7c3aed}
+.boq-row{padding:7px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px}
+.boq-row .head{display:grid;grid-template-columns:1fr 100px 100px;gap:8px;align-items:center}
+.boq-row .desc b{display:block;margin-bottom:2px}
+.boq-row .vals{font-size:11.5px;color:var(--ink-soft)}
+.boq-row .vals-right{text-align:right;font-size:12px}
+.boq-row .controls{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.boq-row .controls select{min-width:120px;font-size:12px}
+.boq-row .controls input[type=text]{flex:1;min-width:160px;font-size:12px}
+.boq-row .controls input[type=date]{min-width:130px;font-size:12px}
+.boq-row .actuals{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.unbudg-row{display:grid;grid-template-columns:32px 1fr 70px 1fr 110px 110px 100px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px}
+.unbudg-row.head{font-weight:700;color:var(--brand);background:#f3f4f6;padding:8px 4px;border-radius:4px;text-transform:uppercase;font-size:10.5px;letter-spacing:.03em}
+.unbudg-row input{padding:4px 6px;font-size:12px}
+.unbudg-row .total{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+@media(max-width:760px){.unbudg-row{grid-template-columns:28px 1fr 60px 90px 100px}.unbudg-row .h-spec,.unbudg-row .v-spec{display:none}}
+.dl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.dl-card{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.dl-card .label{font-weight:700;color:var(--brand);font-size:13px;margin-bottom:6px}
+.dl-card .links{display:flex;gap:6px}
+.dl-card .links a{flex:1;text-align:center;padding:5px 8px;border-radius:5px;font-size:11px;font-weight:700;text-decoration:none}
+.dl-card .links a.xlsx{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.dl-card .links a.docx{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
+.dl-card .links a.pdf{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.footer{color:var(--ink-mute);font-size:11px;margin-top:30px;line-height:1.6}
+.adj-row{display:grid;grid-template-columns:1fr 100px 110px 80px 110px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px}
+.adj-row.head{font-weight:700;color:var(--brand);background:#f3f4f6;padding:7px 4px;text-transform:uppercase;font-size:10.5px;letter-spacing:.03em;border-radius:4px}
+.adj-row input{padding:4px 6px;font-size:12px}
+.adj-row .amt{font-variant-numeric:tabular-nums;text-align:right}
+@media(max-width:760px){.adj-row{grid-template-columns:1fr 90px 80px}.adj-row .h-evd,.adj-row .v-evd,.adj-row .h-by,.adj-row .v-by{display:none}}
+.dec-row{display:grid;grid-template-columns:1fr 110px 110px 1fr;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px}
+.dec-row.head{font-weight:700;color:var(--brand);background:#f3f4f6;padding:7px 4px;text-transform:uppercase;font-size:10.5px;letter-spacing:.03em;border-radius:4px}
+.dec-row input,.dec-row select{padding:4px 6px;font-size:12px}
+@media(max-width:760px){.dec-row{grid-template-columns:1fr 100px 100px}.dec-row .h-notes,.dec-row .v-notes{display:none}}
+@media print{.topbar,.tabs{background:#fff!important;color:var(--brand)!important;position:static;border-bottom:2px solid var(--brand)}.topbar button,.topbar a.btn,.tab{display:none}.topbar h1{color:var(--brand)}.page{display:block!important;page-break-before:always}.page:first-of-type{page-break-before:auto}.card{break-inside:avoid;box-shadow:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <h1>Mrs. Nidhee Jain's Bungalow — Command Center</h1>
+    <div class="meta">17 May 2026 · PMC: Shah Brothers Associates (Arth Shah) · Architect: Hitesh Chokshi · Interior: Mercury Creators</div>
+  </div>
+  <div class="right">
+    <span class="saved-badge" id="savedBadge">Saved</span>
+    <button id="printBtn" class="primary">📄 PDF</button>
+    <a href="./mercury_view.html" class="btn" target="_blank">🛋️ Mercury view</a>
+    <button id="resetBtn">↺ Reset</button>
+  </div>
+</div>
+<div class="tabs" role="tablist">
+  <button class="tab active" data-tab="overview">🏠 Overview</button>
+  <button class="tab" data-tab="sba">🏗️ SBA</button>
+  <button class="tab" data-tab="mercury">🛋️ Mercury</button>
+  <button class="tab" data-tab="variations">✏️ Variations</button>
+  <button class="tab" data-tab="money">💰 Money</button>
+  <button class="tab" data-tab="closure">🔑 Closure</button>
+</div>
+<div class="wrap">
+
+<!-- ========== OVERVIEW ========== -->
+<div class="page active" id="page-overview">
+  <div class="brief">
+    <h3>Project Brief — 17 May 2026</h3>
+    <div class="bigtotal">Current Approved Cost: ₹<span id="canonTotal"></span></div>
+    <div class="canon">= SBA Contracted + Mercury Interior + Variations − Adjustments/Reversals</div>
+  </div>
+
+  <div class="grid g-6">
+    <div class="card kpi"><div class="lbl">Total Project</div><div class="val">₹<span id="totalSpend"></span></div><div class="hint">All scopes</div></div>
+    <div class="card kpi ok"><div class="lbl">Paid to Date</div><div class="val">₹<span id="totalPaid"></span></div><div class="pb"><div id="paidBar"></div></div><div class="hint" id="paidHint"></div></div>
+    <div class="card kpi warn"><div class="lbl">Pending Now</div><div class="val">₹<span id="pendingNow"></span></div><div class="hint">SBA bills due</div></div>
+    <div class="card kpi bad"><div class="lbl">Yet to Execute</div><div class="val">₹<span id="yetToExec"></span></div><div class="hint">Work remaining</div></div>
+    <div class="card kpi"><div class="lbl">Refunds Expected</div><div class="val" style="color:var(--ok)">₹<span id="totalRefunds"></span></div><div class="hint">GST + adjustments + commission</div></div>
+    <div class="card kpi"><div class="lbl">Net Out-of-Pocket</div><div class="val">₹<span id="netExposure"></span></div><div class="hint">After all refunds</div></div>
+  </div>
+
+  <h2>Money picture</h2>
+  <div class="grid g-money">
+    <div class="card"><div class="chartwrap"><canvas id="moneyChart"></canvas></div></div>
+    <div class="card">
+      <div style="font-weight:700;color:var(--brand);margin-bottom:6px">Cash flow summary</div>
+      <div class="stat"><span class="k">SBA contracted (latest 16.05.26)</span><span class="v">₹<span class="editable" data-key="contracted"></span></span></div>
+      <div class="stat"><span class="k">Paid to SBA</span><span class="v" style="color:var(--ok)">₹<span class="editable" data-key="paid"></span></span></div>
+      <div class="stat"><span class="k">Balance to SBA</span><span class="v" style="color:var(--warn)">₹<span id="balanceMoney"></span></span></div>
+      <div class="stat"><span class="k">Mercury balance</span><span class="v" style="color:var(--warn)">₹<span id="mercBalOv"></span></span></div>
+      <div class="stat div"><span class="k">Adjustments due</span><span class="v" style="color:var(--ok)">−₹<span id="adjOv"></span></span></div>
+      <div class="stat"><span class="k">GST + commission refunds</span><span class="v" style="color:var(--ok)">−₹<span id="refundsOv"></span></span></div>
+      <div class="stat div b"><span class="k">Net financial exposure</span><span class="v">₹<span id="netExposure2"></span></span></div>
+    </div>
+  </div>
+
+  <div class="grid g-2" style="margin-top:14px">
+    <div class="card">
+      <div style="font-weight:700;color:var(--brand);margin-bottom:8px">⚠️ Top 5 risks</div>
+      <ul style="margin:0;padding-left:18px;line-height:1.7;font-size:13px">
+        <li>₹4.79L of adjustments not yet formally netted in running balance</li>
+        <li>Construction overdue against all 3 baselines — settlement leverage</li>
+        <li><b>30+ pending items</b> listed by SBA on 17 May — need start dates for each</li>
+        <li>Painting (₹3.2L) finalised but topcoat not started · balcony balustrade install pending</li>
+        <li>Finishing stack overlap: window install, grills, gates, marble polish, paint final — monsoon risk</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div style="font-weight:700;color:var(--brand);margin-bottom:8px">📋 Next 5 actions</div>
+      <div class="action"><div class="n">1</div><div>Sign the Final Adjustment Statement with SBA (Money tab)</div></div>
+      <div class="action"><div class="n">2</div><div>Lock Mercury GST rate (18%) in writing before next milestone</div></div>
+      <div class="action"><div class="n">3</div><div>Get itemised window quote with CA-reviewed refund mechanism</div></div>
+      <div class="action"><div class="n">4</div><div>Lock painting start date (₹3.2L, putty done)</div></div>
+      <div class="action"><div class="n">5</div><div>Populate Decision Register (Closure tab) — paint / AC / appliances</div></div>
+    </div>
+  </div>
+  <h2>Current Completion Commitment</h2>
+  <div class="card">
+    <div class="timeline-strip">
+      <div class="tl-card current">
+        <div class="lbl">Current commitment (active)</div>
+        <div class="date" id="b3date">—</div>
+        <div class="delta" id="b3delta">—</div>
+      </div>
+      <div class="tl-card" style="opacity:.7">
+        <div class="lbl">Original target</div>
+        <div class="date">31 Dec 2025</div>
+        <div class="delta" id="b1delta">—</div>
+      </div>
+      <div class="tl-card" style="opacity:.7">
+        <div class="lbl">First revision</div>
+        <div class="date">31 Jan 2026</div>
+        <div class="delta" id="b2delta">—</div>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <div style="font-size:11.5px;color:var(--ink-mute);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Project timeline visualisation</div>
+      <div id="timelineGraph" style="position:relative;height:170px;background:#fafbfc;border-radius:8px;padding:14px;border:1px solid var(--line)"></div>
+    </div>
+    <details class="note"><summary>Timeline history</summary><div class="body">SBA originally committed Dec 2025 verbally; revised to end-Jan 2026; contractual basis is 300 working days from 1 April 2025 (≈ end-March 2026). All three have elapsed as of today. Penalty leverage available — see Money tab.</div></details>
+  </div>
+</div>
+
+<!-- ========== SBA TAB ========== -->
+<div class="page" id="page-sba">
+  <h2>SBA Construction <span class="acc">Latest file: Bunglow_16.05.26.xlsx</span></h2>
+  <div class="grid g-4">
+    <div class="card kpi"><div class="lbl">Contracted (latest)</div><div class="val">₹<span class="editable" data-key="contracted"></span></div><div class="hint">↑ from ₹69.19L on 19.04.26</div></div>
+    <div class="card kpi ok"><div class="lbl">Paid</div><div class="val">₹<span class="editable" data-key="paid"></span></div><div class="hint">↑ from ₹61.94L on 19.04.26</div></div>
+    <div class="card kpi warn"><div class="lbl">Balance</div><div class="val">₹<span id="sbaBalance"></span></div><div class="hint">incl. ₹35.5K design fees</div></div>
+    <div class="card kpi bad"><div class="lbl">Yet to Execute</div><div class="val">₹<span class="editable" data-key="yetToExecute"></span></div><div class="hint">Per Tracking Sheet</div></div>
+  </div>
+
+  <h2>10% Saving Commitment</h2>
+  <div class="card">
+    <div class="grid g-3">
+      <div><div class="stat"><span class="k">Initial market quote</span><span class="v">₹<span class="editable" data-key="initialQuote"></span></span></div></div>
+      <div><div class="stat"><span class="k">Saving target (10% off)</span><span class="v" style="color:var(--ok)">₹<span id="targetSpend"></span></span></div></div>
+      <div><div class="stat"><span class="k">Projected total</span><span class="v">₹<span id="projectedSpend"></span></span></div></div>
+    </div>
+    <div class="pb" id="savingProgress" style="margin-top:10px"><div></div></div>
+    <div class="hint" id="savingHint" style="font-size:11.5px;margin-top:6px"></div>
+  </div>
+
+    <h2>Plan vs Actual — by section <span class="acc">From SBA 16.05.26</span></h2>
+  <div class="card">
+    <div class="chartwrap" style="height:320px"><canvas id="sbaPVAChart"></canvas></div>
+    <div style="font-size:11.5px;color:var(--ink-mute);margin-top:8px"><b>Plan</b> = SBA Feb-25 quote · <b>Actual</b> = latest billed per 16.05.26 file. Edit row-level actuals in the BOQ below to refine.</div>
+  </div>
+
+  <details class="note"><summary>About the SBA BOQ</summary><div class="body">Format mirrors Final_Quotation_21.02.25.xlsx (Material Rate/Amount + Labour Rate/Amount). Each line has a status dropdown + comment box. Actuals blank — SBA fills from their data.</div></details>
+
+  <div class="scope-section">
+    <div class="scope-head" onclick="toggleScope('sba')">
+      <div class="title">SBA — 11 sections (₹73.82L initial quote)</div>
+      <div class="progress-mini" id="sbaProgressMini"></div>
+      <div id="sbaArrow">▾</div>
+    </div>
+    <div class="scope-body" id="sba-body">
+      <div id="sbaBody"></div>
+    </div>
+  </div>
+
+
+  <h2>Pending Items (per SBA — 17 May 2026)</h2>
+  <div class="card">
+    <div style="font-size:12.5px;color:var(--ink-soft);margin-bottom:8px">SBA shared this pending-work list on 17 May. Click ☐ as each is completed. Status flows back into the Overview risks.</div>
+    <div id="pendingList"></div>
+    <div style="font-size:11.5px;color:var(--ink-mute);margin-top:10px" id="pendingProgress"></div>
+  </div>
+
+    <h2>Downloads</h2>
+  <div class="dl-card">
+    <div class="label">SBA Plan vs Actual — share with SBA</div>
+    <div class="links"><a class="xlsx" href="./Reports/01_SBA_Plan_vs_Actual.xlsx">Excel</a><a class="docx" href="./Reports/01_SBA_Plan_vs_Actual.docx">Word</a><a class="pdf" href="./Reports/01_SBA_Plan_vs_Actual.pdf">PDF</a></div>
+  </div>
+</div>
+
+<!-- ========== MERCURY TAB ========== -->
+<div class="page" id="page-mercury">
+  <h2>Mercury Interior <span class="acc">Agreement 16 April 2026</span></h2>
+  <div class="grid g-4">
+    <div class="card kpi"><div class="lbl">Contract (ex-GST)</div><div class="val">₹<span class="editable" data-key="interiorContract"></span></div><div class="hint">60-day turnkey</div></div>
+    <div class="card kpi"><div class="lbl">+ GST 18%</div><div class="val">₹<span id="interiorGst"></span></div><div class="hint" style="color:var(--ok)">50% refundable</div></div>
+    <div class="card kpi ok"><div class="lbl">Paid</div><div class="val">₹<span class="editable" data-key="interiorPaid"></span></div><div class="hint" id="interiorPaidHint"></div></div>
+    <div class="card kpi warn"><div class="lbl">Balance (incl. GST)</div><div class="val">₹<span id="interiorBalance"></span></div><div class="hint">To Mercury</div></div>
+  </div>
+
+  <details class="note"><summary>About this tracker</summary><div class="body">All 50 BOQ items grouped by room (A POP → N Other). Sections mirror your 5-bedroom layout. Status dropdown + done-on date + comment per item. Daily walk-through tool. Mercury sees only this tab via mercury_view.html.</div></details>
+
+  <div class="scope-section">
+    <div class="scope-head" onclick="toggleScope('merc')">
+      <div class="title">Mercury — all 50 items (₹21.34L ex-GST)</div>
+      <div class="progress-mini" id="mercProgressMini"></div>
+      <div id="mercArrow">▾</div>
+    </div>
+    <div class="scope-body" id="merc-body">
+      <div id="mercBody"></div>
+    </div>
+  </div>
+
+  <h2>Payment Milestones</h2>
+  <div class="card">
+    <div id="mercMilestones"></div>
+    <div class="hint" style="font-size:11.5px;color:var(--ink-mute);margin-top:8px">Per agreement: 20/20/20/20/10 + 10% retention.</div>
+  </div>
+
+  <h2>Downloads</h2>
+  <div class="dl-card">
+    <div class="label">Mercury Plan vs Actual — share with Mercury</div>
+    <div class="links"><a class="xlsx" href="./Reports/02_Mercury_Plan_vs_Actual.xlsx">Excel</a><a class="docx" href="./Reports/02_Mercury_Plan_vs_Actual.docx">Word</a><a class="pdf" href="./Reports/02_Mercury_Plan_vs_Actual.pdf">PDF</a></div>
+  </div>
+</div>
+
+<!-- ========== VARIATIONS TAB ========== -->
+<div class="page" id="page-variations">
+  <h2>Variations &amp; Additions <span class="acc">Out-of-original-scope items</span></h2>
+  <details class="note"><summary>About this section</summary><div class="body">Anything beyond SBA + Mercury. Format: Sr · Details · Qty · Spec · Cost/Item · Total · Status. Fill quantity and cost — Total auto-computes. Categories: Electronics+Appliances · Security+Smart Home · External+Move-in · Skylights+Specialty.</div></details>
+  <div class="grid g-4">
+    <div class="card kpi"><div class="lbl">Total Tracked</div><div class="val" id="unbTotalKpi">₹0</div><div class="hint">All categories</div></div>
+    <div class="card kpi warn"><div class="lbl">Pending</div><div class="val" id="unbPendKpi">0</div><div class="hint">Not started</div></div>
+    <div class="card kpi"><div class="lbl">Ordered/Delivered</div><div class="val" id="unbInProgKpi">0</div><div class="hint">In motion</div></div>
+    <div class="card kpi ok"><div class="lbl">Installed</div><div class="val" id="unbDoneKpi">0</div><div class="hint">Completed</div></div>
+  </div>
+  <div id="unbBody"></div>
+  <h2>Downloads</h2>
+  <div class="dl-card">
+    <div class="label">Variations &amp; Additions Tracker</div>
+    <div class="links"><a class="xlsx" href="./Reports/03_Unbudgeted_Tracker.xlsx">Excel</a><a class="docx" href="./Reports/03_Unbudgeted_Tracker.docx">Word</a><a class="pdf" href="./Reports/03_Unbudgeted_Tracker.pdf">PDF</a></div>
+  </div>
+</div>
+
+<!-- ========== MONEY TAB ========== -->
+<div class="page" id="page-money">
+  <h2>Money — Single Source of Financial Truth</h2>
+  <div class="card">
+    <div style="font-weight:700;color:var(--brand);margin-bottom:6px">Current Approved Cost build-up</div>
+    <div class="stat"><span class="k">SBA Contracted (16.05.26)</span><span class="v">₹<span class="editable" data-key="contracted"></span></span></div>
+    <div class="stat"><span class="k">+ Mercury Interior (incl. GST)</span><span class="v">₹<span id="mercInclGst"></span></span></div>
+    <div class="stat"><span class="k">+ Approved Variations</span><span class="v">₹<span id="unbTotalMoney"></span></span></div>
+    <div class="stat"><span class="k">+ Window scope upgrade (₹8.10L − ₹4.74L)</span><span class="v">₹3,36,000</span></div>
+    <div class="stat"><span class="k">− Adjustments / Reversals due</span><span class="v" style="color:var(--ok)">−₹<span class="editable" data-key="adjustments"></span></span></div>
+    <div class="stat"><span class="k">− 50% GST refund (Window + PMC + Mercury)</span><span class="v" style="color:var(--ok)">−₹<span id="gstRefundTotal"></span></span></div>
+    <div class="stat"><span class="k">− 9% PMC commission returned</span><span class="v" style="color:var(--ok)">−₹<span id="pmcCommReturn"></span></span></div>
+    <div class="stat div b"><span class="k">CURRENT APPROVED COST</span><span class="v">₹<span id="canonTotal2"></span></span></div>
+  </div>
+
+  <h2>Final Adjustment Statement</h2>
+  <div class="flag bad"><b>This must be signed by SBA</b> before final settlement. Each row needs status: "Netted in running balance? Y/N" + evidence link (email / WhatsApp / signed slip).</div>
+  <div class="card">
+    <div class="adj-row head">
+      <div>Item</div><div class="right">Amount (₹)</div><div class="h-by">Accepted By</div><div>Netted?</div><div class="h-evd">Evidence</div>
+    </div>
+    <div id="adjBody"></div>
+  </div>
+
+  <h2>Window Settlement Worksheet</h2>
+<div class="card scroll-x">
+    <table>
+      <thead><tr><th>Component</th><th class="right">Amount (₹)</th><th class="right">GST 18%</th><th class="right">Refund (50%)</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>Window contract (ex-GST)</td><td class="right money">₹<span id="winBaseAmt"></span></td><td class="right money">₹<span id="winGstAmt"></span></td><td class="right money" style="color:var(--ok)">₹<span id="winGstRef"></span></td><td>50% of GST back</td></tr>
+        <tr><td>9% PMC commission on ex-GST</td><td class="right money">₹<span id="pmcCommAmt"></span></td><td class="right money">₹<span id="pmcCommGstAmt"></span></td><td class="right money" style="color:var(--ok)">₹<span id="pmcCommGstRef"></span></td><td>50% of PMC GST back</td></tr>
+        <tr style="background:#f7fafc"><td>9% PMC commission itself</td><td class="right money" colspan="2" style="color:var(--ink-mute);text-align:right">Fully transferred back</td><td class="right money" style="color:var(--ok)">₹<span id="pmcCommBack"></span></td><td>Per your note</td></tr>
+        <tr style="background:#fafbfc;font-weight:700;border-top:2px solid var(--line)"><td>Net out-of-pocket for window</td><td class="right money" colspan="3">Gross outflow − all refunds</td><td class="right money" style="color:var(--brand)">₹<span id="winNet"></span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Penalty Leverage <span class="acc">Not in budget — for negotiation only</span></h2>
+  <div class="card">
+    <div class="stat"><span class="k">SBA delay penalty leverage</span><span class="v" id="sbaPenMax"></span></div>
+    <div class="stat"><span class="k">Mercury delay penalty leverage</span><span class="v" id="mercPenamt"></span></div>
+    <div class="hint" style="font-size:11.5px;color:var(--ink-mute);margin-top:4px">Penalty rates: SBA ₹2,000/day · Mercury ₹1,000/day after 15-day grace. Leverage = strongest applicable baseline. Use only at settlement.</div>
+  </div>
+
+  <h2>Splitwise Category Summary</h2>
+  <div class="card scroll-x">
+    <table>
+      <thead><tr><th>Category</th><th class="right">Spent (₹)</th><th class="right">Entries</th></tr></thead>
+      <tbody id="splitCatBody"></tbody>
+    </table>
+    <div style="font-size:11.5px;color:var(--ink-mute);margin-top:8px">From Splitwise_Ledger_17.05.2026.xlsx · 50 entries Sep 2024 → May 2026</div>
+  </div>
+</div>
+
+<!-- ========== CLOSURE TAB ========== -->
+<div class="page" id="page-closure">
+  <h2>Closure &amp; Handover</h2>
+  <details class="note" open><summary>Why this tab matters</summary><div class="body">This is the highest-value tab post-handover. Decision Register + Snag List + Material Register + Warranty Tracker — together become your 10-year memory for the house. Defect Liability Period from SBA is <b>21 years</b> per agreement clause 7.2 (termite, leakage, wall cracks, structural).</div></details>
+
+  <h2>Decision Register</h2>
+  <div class="card">
+    <div class="dec-row head"><div>Decision</div><div>Status</div><div>Decided On</div><div class="h-notes">Reference / Notes</div></div>
+    <div id="decBody"></div>
+    <div class="hint" style="font-size:11.5px;color:var(--ink-mute);margin-top:8px">Pre-seeded with 18 typical open decisions for a project at your stage. Add more via Decision rows in the xlsx.</div>
+  </div>
+
+  <h2>Snag List <span class="acc">Pre-handover punch list</span></h2>
+  <div class="card">
+    <div class="hint" style="font-size:12.5px">Maintained in the v4 tracking sheet (xlsx). Open <a href="./Ishant Jain_Tracking Sheet_4_17.05.26.xlsx" style="color:var(--brand2)">Tracking Sheet v4 → Snag List tab</a> to add entries on each site visit. 11 columns including photo link, owner, promised-by-date.</div>
+  </div>
+
+  <h2>Material &amp; Finish Register</h2>
+  <div class="card">
+    <div class="hint" style="font-size:12.5px">Maintained in the v4 tracking sheet (xlsx). Open <a href="./Ishant Jain_Tracking Sheet_4_17.05.26.xlsx" style="color:var(--brand2)">Tracking Sheet v4 → Material Register</a>. Pre-seeded with 48 lines across Flooring, Paint, Sanitaryware, Electrical, Kitchen, Other. Fill brand/model/warranty as items get installed.</div>
+  </div>
+
+  <h2>Warranty Tracker (Defect Liability)</h2>
+  <div class="card scroll-x">
+    <table>
+      <thead><tr><th>Item</th><th>Warranty Start</th><th>Duration</th><th>Expires</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Anti-termite treatment (Zeel)</td><td>28 Feb 2026</td><td>5 years (typical)</td><td>28 Feb 2031</td><td><span class="pill ok">Active</span></td></tr>
+        <tr><td>Waterproofing — Brick bat coba</td><td>TBD — installed Apr 2026</td><td>5–10 years (vendor warranty)</td><td>Apr 2031–2036</td><td><span class="pill warn">Get vendor card</span></td></tr>
+        <tr><td>SBA structural defect liability</td><td>Handover date (TBD)</td><td><b>21 years</b> (agreement cl. 7.2)</td><td>Handover + 21y</td><td><span class="pill info">Per contract</span></td></tr>
+        <tr><td>Mercury Interior — defect liability</td><td>Handover date (TBD)</td><td>1 year (industry standard — verify with Mercury)</td><td>Handover + 1y</td><td><span class="pill warn">Confirm in writing</span></td></tr>
+        <tr><td>Paints / putty</td><td>TBD</td><td>5 years for premium paint</td><td>TBD</td><td><span class="pill gray">Not started</span></td></tr>
+        <tr><td>Appliances (AC, fridge, washer etc.)</td><td>Per purchase</td><td>1–5 years per OEM</td><td>Per OEM</td><td><span class="pill gray">Not purchased</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Handover Checklist</h2>
+  <div class="card">
+    <div class="hint" style="font-size:12.5px">Maintained in the v4 tracking sheet (xlsx). Open <a href="./Ishant Jain_Tracking Sheet_4_17.05.26.xlsx" style="color:var(--brand2)">Tracking Sheet v4 → Handover Checklist</a>. 35 items across Documents, Financial Closure, Physical Handover, Digital/Memory.</div>
+  </div>
+
+  <h2>Vendor Contact Directory</h2>
+  <div class="card scroll-x">
+    <table>
+      <thead><tr><th>Vendor</th><th>Role</th><th>Contact</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Arth Shah / Shah Brothers Associates</td><td>PMC</td><td>B-27 Samarpan Park, Vadodara 390025</td><td>PAN GBTPS2421F · Lock-and-key ₹6L · 21-year defect liability</td></tr>
+        <tr><td>Hitesh Chokshi &amp; Associates</td><td>Architect</td><td>—</td><td>Drawings + design</td></tr>
+        <tr><td>Mercury Creators</td><td>Interior</td><td>C-5 Vat Prad Duplex, Atladra, Vadodara 390020 · 9173776555 / 8511210113</td><td>₹21.34L ex-GST · 60-day turnkey · Godrej hardware</td></tr>
+        <tr><td>Pintu Bhai / Shreeji Marbles</td><td>Tile + Granite labour</td><td>—</td><td>Selected Nov 2025 quotation comparison</td></tr>
+        <tr><td>Solidfied RMC</td><td>RMC supplier</td><td>—</td><td>Civil structural concrete</td></tr>
+        <tr><td>Ronak Corporation</td><td>Cement</td><td>—</td><td>10 lots delivered May 2025 – Mar 2026</td></tr>
+        <tr><td>Ambaji (Marble Balustride JituBhai)</td><td>Balcony balustrade</td><td>—</td><td>63 items · ₹54K · install pending</td></tr>
+        <tr><td>Zeel</td><td>Anti-termite</td><td>—</td><td>Treatment done 28 Feb 2026</td></tr>
+        <tr><td>MGVCL</td><td>Electricity</td><td>—</td><td>Connection paid 13 May 2026 ₹21,222</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  Data: SBA workbook 16.05.26 · Mercury agreement 16 April 2026 · Splitwise 50-entry ledger · SBA agreement R6 · Final_Quotation 21.02.25.
+</div>
+</div>
+
+<script>
+const TODAY = new Date('2026-05-17');
+
+const SBA_BOQ = [
+  { sec:1, name:'CIVIL WORKS' },
+  { sr:1, desc:'Plinth Area (Plinth Ht 4.5)', unit:'Sqft', qty:1198.21, matR:420, matA:503248, labR:180, labA:215677.80 },
+  { sr:2, desc:'Super Structure (1:6 proportion)', unit:'Sqft', qty:3388, matR:505, matA:1710940, labR:325, labA:1101100 },
+  { sec:2, name:'FLOORING, DOOR & WINDOW' },
+  { sr:1, desc:'Flooring tiles 1200×600', unit:'Sqft', qty:4281, matR:75, matA:321075, labR:35, labA:149835 },
+  { sr:'1.1', desc:'Skirting', unit:'Rft', qty:770, matR:50, matA:38500, labR:30, labA:23100 },
+  { sr:3, desc:'Door & Window granite frame', unit:'Rft', qty:851, matR:220, matA:187220, labR:110, labA:93610 },
+  { sr:5, desc:'Sandwich plywood door', unit:'Rft', qty:29, matR:1700, matA:49300, labR:550, labA:15950 },
+  { sr:8, desc:'Riser & Tread granite', unit:'Rft', qty:1282, matR:180, matA:230760, labR:85, labA:108970 },
+  { sr:9, desc:'Landing granite', unit:'Sqft', qty:165, matR:180, matA:29700, labR:85, labA:14025 },
+  { sr:12, desc:'Anti-termite treatment', unit:'Sqft', qty:1198.21, matR:4, matA:4793, labR:1, labA:1198.21 },
+  { sec:3, name:'WATERPROOFING' },
+  { sr:1, desc:'Brick bat coba waterproofing', unit:'Sqft', qty:1707, matR:65, matA:110955, labR:55, labA:93885 },
+  { sr:2, desc:'Chemical waterproofing in bathrooms', unit:'Sqft', qty:150, matR:40, matA:6000, labR:40, labA:6000 },
+  { sec:4, name:'PAINTING' },
+  { sr:1, desc:'Interior wall paint (primer + 2 coat)', unit:'Sqft', qty:15693, matR:13, matA:204009, labR:11, labA:172623 },
+  { sr:2, desc:'Anti-damp alkaline paint (exterior)', unit:'Sqft', qty:5513, matR:12, matA:66156, labR:8, labA:44104 },
+  { sec:5, name:'PLUMBING' },
+  { sr:1, desc:'Plumbing per bathroom (4 bathrooms)', unit:'Nos', qty:4, matR:58700, matA:234800, labR:15000, labA:60000 },
+  { sec:6, name:'DOOR / WINDOW' },
+  { sr:1, desc:'Door / Window scope (original)', unit:'LS', qty:1, matR:474110, matA:474110, labR:0, labA:0, note:'NEW window contract ₹8.10L is separate addition' },
+  { sec:7, name:'ELECTRIC' },
+  { sr:1, desc:'Electric wiring + fittings', unit:'LS', qty:1, matR:169400, matA:169400, labR:118580, labA:118580 },
+  { sec:8, name:'FABRICATION (incl. Stair Railing)' },
+  { sr:1, desc:'Stair railing + grilles + gates', unit:'LS', qty:1, matR:125850, matA:125850, labR:50340, labA:50340 },
+  { sec:9, name:'CIVIL EXTERNAL' },
+  { sr:1, desc:'Compound wall + outside infra', unit:'LS', qty:1, matR:234200, matA:234200, labR:105800, labA:105800 },
+  { sec:10, name:'RAILING (Balcony Balustrade)' },
+  { sr:1, desc:'1st floor balconies — 63 items from Ambaji', unit:'Nos', qty:63, matR:857, matA:54000, labR:95, labA:6000 },
+  { sec:11, name:'SBA PMC FEE' },
+  { sr:1, desc:'PMC management fee (lock-and-key)', unit:'LS', qty:1, matR:0, matA:0, labR:600000, labA:600000 },
+];
+
+const MERC_BOQ = [
+  { code:'A', name:'POP / FALSE CEILING' },
+  { code:'A1', item:'Gypsum False ceiling — GF+FF+SF Multipurpose', unit:'Sqft', qty:2900, rate:66.36, amt:192444 },
+  { code:'C', name:'CURTAINS & PELMETS' },
+  { code:'C1', item:'Curtains — recreational + living + 4 bedrooms', unit:'Sqft', qty:510, rate:268.18, amt:136772 },
+  { code:'C2', item:'Dining area pelmet 20×3', unit:'Sqft', qty:60, rate:340.91, amt:20455 },
+  { code:'C3', item:'Kids room pelmet 13×3', unit:'Sqft', qty:39, rate:340.91, amt:13295 },
+  { code:'C4', item:'Master bedroom pelmet 16×3', unit:'Sqft', qty:48, rate:340.91, amt:16364 },
+  { code:'D', name:'BATHROOM VANITY & MIRROR' },
+  { code:'D1', item:'Vanity storage below washbasin', unit:'Nos', qty:5, rate:6136.36, amt:30682 },
+  { code:'D2', item:'Mirror (all bathrooms + dressing)', unit:'Sqft', qty:115, rate:218.18, amt:25091 },
+  { code:'E', name:'FAMILY ROOM (GF Living/Dining)' },
+  { code:'E1', item:'15ft sofa', unit:'Rft', qty:15, rate:3863.64, amt:57955 },
+  { code:'E2', item:'5ft swing', unit:'Nos', qty:1, rate:58181.82, amt:58182 },
+  { code:'E3', item:'2 king chairs', unit:'Nos', qty:2, rate:15909.09, amt:31818 },
+  { code:'E4', item:'Center table', unit:'Nos', qty:1, rate:51818.18, amt:51818 },
+  { code:'E5', item:'Sofa corner table', unit:'Nos', qty:1, rate:9454.55, amt:9455 },
+  { code:'E6', item:'360° rotating TV unit + panel 10×11', unit:'Sqft', qty:110, rate:1113.64, amt:122500 },
+  { code:'E7', item:'Hardwood partition', unit:'Sqft', qty:44, rate:1554.55, amt:68400 },
+  { code:'E8', item:'Sofa back wall panelling', unit:'Sqft', qty:66, rate:1181.82, amt:78000 },
+  { code:'E9', item:'Highlight wall in foyer 6×11', unit:'Sqft', qty:66, rate:486.36, amt:32100 },
+  { code:'E10', item:'Console foyer table', unit:'Sqft', qty:20, rate:704.55, amt:14091 },
+  { code:'E11', item:'Safety Door', unit:'Nos', qty:1, rate:30909.09, amt:30909 },
+  { code:'F', name:'KITCHEN & DINING' },
+  { code:'F1', item:'Modular kitchen + service + crockery + breakfast', unit:'LS', qty:1, rate:0, amt:0 },
+  { code:'F2', item:'Designer 6-seater dining + breakfast counter', unit:'Nos', qty:1, rate:83272.73, amt:83273 },
+  { code:'G', name:'GF MOTHER ROOM' },
+  { code:'G2', item:'3×6.6 headrest', unit:'Sqft', qty:39.60, rate:1136.36, amt:45000 },
+  { code:'G3', item:'Wall panelling 6×11', unit:'Sqft', qty:19.80, rate:795.45, amt:15750 },
+  { code:'G4', item:'Side drawer × 2', unit:'Sqft', qty:66, rate:727.27, amt:48000 },
+  { code:'G5', item:'Window seating × 2', unit:'Nos', qty:2, rate:7272.73, amt:14545 },
+  { code:'G6', item:'Wardrobe 9×8', unit:'Sqft', qty:12, rate:1000, amt:12000 },
+  { code:'G7', item:'Loft 9×3', unit:'Sqft', qty:72, rate:1181.82, amt:85091 },
+  { code:'G8', item:'Puffy', unit:'Sqft', qty:27, rate:727.27, amt:19636 },
+  { code:'G8b', item:'Puffy nos', unit:'Nos', qty:1, rate:5909.09, amt:5909 },
+  { code:'G9', item:'Glass profile shutter 2×8', unit:'Sqft', qty:16, rate:659.09, amt:10545 },
+  { code:'H', name:'FF TEMPLE ROOM' },
+  { code:'H1', item:'Designer temple unit + carved door', unit:'Nos', qty:1, rate:75454.55, amt:75455 },
+  { code:'H2', item:'Navkar Mantra carving (5mm acrylic)', unit:'Nos', qty:1, rate:37272.73, amt:37273 },
+  { code:'H3', item:'Hanuman Chalisa CNC carving', unit:'Nos', qty:1, rate:15000, amt:15000 },
+  { code:'H4', item:'2 puffies', unit:'Nos', qty:2, rate:5909.09, amt:11818 },
+  { code:'I', name:'FF KIDS ROOM' },
+  { code:'I2', item:'Designer bed 7×7', unit:'Sqft', qty:49, rate:1136.36, amt:55682 },
+  { code:'I3', item:'3×7 headrest', unit:'Sqft', qty:21, rate:795.45, amt:16704 },
+  { code:'I4', item:'15×6 bed back panelling', unit:'Sqft', qty:90, rate:727.27, amt:65454 },
+  { code:'I5', item:'Bedside open shelf × 2', unit:'Nos', qty:2, rate:7272.73, amt:14545 },
+  { code:'I6', item:'Wardrobe with open box 9×11', unit:'Sqft', qty:99, rate:1181.82, amt:117000 },
+  { code:'I7', item:'Designer dressing + mirror', unit:'Nos', qty:1, rate:5181.82, amt:5182 },
+  { code:'I8', item:'Walking wardrobe in bathroom', unit:'Sqft', qty:54, rate:1181.82, amt:63818 },
+  { code:'I9', item:'Study + TV unit 10×7', unit:'Sqft', qty:70, rate:1090.91, amt:76364 },
+  { code:'J', name:'FF MASTER BEDROOM (Parents)' },
+  { code:'J1', item:'Designer bed 7×6.6', unit:'Sqft', qty:46.20, rate:1136.36, amt:52500 },
+  { code:'J2', item:'3×6.6 headrest', unit:'Sqft', qty:20, rate:795.45, amt:15909 },
+  { code:'J3', item:'Wall panelling 12×3 + laminate', unit:'Sqft', qty:36, rate:727.27, amt:26182 },
+  { code:'J4', item:'Bedside tables × 2', unit:'Nos', qty:2, rate:7272.73, amt:14545 },
+  { code:'J5', item:'Full wardrobe 9×9', unit:'Sqft', qty:81, rate:1181.82, amt:95727 },
+  { code:'J6', item:'Loft 11×3', unit:'Sqft', qty:33, rate:727.27, amt:24000 },
+  { code:'J7', item:'Walking wardrobe in bathroom', unit:'Sqft', qty:45, rate:1181.82, amt:53182 },
+  { code:'J8', item:'Designer dressing 3×5', unit:'Sqft', qty:15, rate:527.27, amt:7909 },
+  { code:'K', name:'SF OFFICE / MEDITATION' },
+  { code:'K1', item:'Single chairs × 2', unit:'Nos', qty:2, rate:8636.36, amt:17273 },
+  { code:'K2', item:'Working desk 7×3', unit:'Sqft', qty:21, rate:1181.82, amt:24818 },
+  { code:'K3', item:'Storage above working desk 7×3', unit:'Sqft', qty:21, rate:1181.82, amt:24818 },
+  { code:'L', name:'FF GUEST / MULTIPURPOSE' },
+  { code:'L1', item:'Bed 7×6.6', unit:'Sqft', qty:46.20, rate:1136.36, amt:52500 },
+  { code:'L2', item:'Headrest 6×6.6', unit:'Sqft', qty:39.60, rate:795.45, amt:31500 },
+  { code:'L3', item:'Single drawer side tables × 2', unit:'Nos', qty:2, rate:7272.73, amt:14545 },
+  { code:'L4', item:'Wardrobe 3.6×8.6', unit:'Sqft', qty:30.96, rate:1181.82, amt:36591 },
+  { code:'M', name:'SF MULTIPURPOSE (verify w/ Mercury)' },
+  { code:'M1', item:'Bed 7×6.6', unit:'Sqft', qty:46.20, rate:1136.36, amt:52500 },
+  { code:'M2', item:'Bed back panelling 11×5', unit:'Sqft', qty:55, rate:727.27, amt:40000 },
+  { code:'M3', item:'Headrest 3×11', unit:'Sqft', qty:33, rate:795.45, amt:26250 },
+  { code:'M4', item:'Single drawer side tables × 2', unit:'Nos', qty:2, rate:7272.73, amt:14545 },
+  { code:'M5', item:'Open book storage shelves', unit:'Sqft', qty:45, rate:1022.73, amt:46023 },
+  { code:'M6', item:'Wardrobe 3.6×8.6', unit:'Sqft', qty:30.96, rate:1181.82, amt:36591 },
+  { code:'N', name:'OTHER' },
+  { code:'N1', item:'Miscellaneous expense', unit:'Nos', qty:1, rate:18181.82, amt:18182 },
+];
+
+const SBA_PENDING_ITEMS = [
+  { item:'Window installation', cat:'Window' },
+  { item:'Kitchen installation', cat:'Kitchen' },
+  { item:'PCC outside', cat:'Civil External' },
+  { item:'Grills on windows', cat:'Window' },
+  { item:'Stairs Railing', cat:'Fabrication' },
+  { item:'Railing for side walls', cat:'Fabrication' },
+  { item:'Skylights and OTTA cover', cat:'Civil External' },
+  { item:'Balcony Railing (63 items Ambaji — install pending)', cat:'Railing' },
+  { item:'Marble polishing', cat:'Flooring' },
+  { item:'Marble on Pargola, Outside stairs, balcony, compound wall', cat:'Flooring' },
+  { item:'Groove filling of tiles', cat:'Flooring' },
+  { item:'Doors installation', cat:'Door/Window' },
+  { item:'Doors frame correction', cat:'Door/Window' },
+  { item:'SF groove on wall', cat:'Civil' },
+  { item:'Store, Crockery area and Kitchen platform', cat:'Kitchen' },
+  { item:'CP fittings and Basin installation in all bathrooms', cat:'Plumbing' },
+  { item:'Parking tiles finalization', cat:'Flooring' },
+  { item:'Paint work final finished', cat:'Painting' },
+  { item:'Sliding gate, wicket gate, shed area back side', cat:'Fabrication' },
+  { item:'CCTV camera + automation', cat:'Electrical' },
+  { item:'Electric switches', cat:'Electrical' },
+  { item:'Walking glass', cat:'Glazing' },
+  { item:'Plumbing: overhead tank, pressure pump, geyser for all washrooms', cat:'Plumbing' },
+  { item:'Outside paint damp proof', cat:'Painting' },
+  { item:'Meter connection (in process — partial MGVCL ₹21,222 paid 13 May)', cat:'Utilities' },
+  { item:'Water connection, drainage connection', cat:'Utilities' },
+  { item:'Outside masonry + repair (3-side wall plaster work)', cat:'Civil External' },
+  { item:'Water softener', cat:'Plumbing' },
+];
+
+const UNB_SCOPE = [
+  { cat:'Electronics & Appliances', items:[
+    { details:'Ceiling lights — decorative + functional', qty:'', spec:'' },
+    { details:'Chandeliers — living/dining/master', qty:'', spec:'' },
+    { details:'Ceiling fans', qty:7, spec:'all rooms' },
+    { details:'Standing/wall fans', qty:'', spec:'utility / outdoor' },
+    { details:'Split AC', qty:5, spec:'1.5T inverter' },
+    { details:'Geysers', qty:4, spec:'15L' },
+    { details:'Exhaust fans', qty:5, spec:'bathrooms + kitchen' },
+    { details:'Chimney + Hob', qty:1, spec:'' },
+    { details:'Microwave / Oven', qty:1, spec:'' },
+    { details:'Refrigerator', qty:1, spec:'' },
+    { details:'Washing machine', qty:1, spec:'' },
+    { details:'Dishwasher', qty:1, spec:'' },
+    { details:'Water purifier (RO)', qty:1, spec:'' },
+    { details:'TV', qty:'', spec:'living + bedrooms' },
+  ]},
+  { cat:'Security & Smart Home', items:[
+    { details:'CCTV cameras + DVR', qty:'', spec:'4-8 cam' },
+    { details:'Smart door lock', qty:1, spec:'main door' },
+    { details:'Video doorbell', qty:1, spec:'' },
+    { details:'Intercom system', qty:1, spec:'' },
+    { details:'Wi-Fi mesh', qty:1, spec:'G→SF coverage' },
+    { details:'Smart switches / dimmers', qty:'', spec:'' },
+    { details:'Motion sensor lights', qty:'', spec:'corridor / exterior' },
+  ]},
+  { cat:'External & Move-in', items:[
+    { details:'Garden landscaping + plants', qty:1, spec:'' },
+    { details:'Driveway / parking flooring', qty:1, spec:'' },
+    { details:'Gate motor + sensor', qty:1, spec:'' },
+    { details:'Outdoor lights', qty:'', spec:'porch / garden / gate' },
+    { details:'Letterbox + nameplate', qty:1, spec:'' },
+    { details:'Deep cleaning', qty:1, spec:'pre move-in' },
+    { details:'Vastu / Pooja', qty:1, spec:'' },
+    { details:'Society dues / NOC fees', qty:1, spec:'' },
+    { details:'Property registration', qty:'', spec:'' },
+    { details:'Occupancy charges (VMC)', qty:'', spec:'' },
+  ]},
+  { cat:'Skylights & Specialty', items:[
+    { details:'Skylight installation', qty:'', spec:'location TBD' },
+    { details:'Skylight glass', qty:'', spec:'toughened, laminated' },
+    { details:'Skylight frame + weatherproofing', qty:'', spec:'' },
+    { details:'Solar panels', qty:'', spec:'if planned' },
+    { details:'Solar water heater', qty:'', spec:'if planned' },
+  ]},
+];
+
+const ADJUSTMENTS = [
+  { item:'UG Tank (less)', amount:109433, acceptedBy:'SBA Summary', netted:false, evidence:'Bunglow_19.04.26 Summary side-cell' },
+  { item:'Excess cement (less)', amount:104000, acceptedBy:'SBA Summary', netted:false, evidence:'150 bags × ₹330' },
+  { item:'Elevation labour (less)', amount:211696, acceptedBy:'SBA Summary', netted:false, evidence:'Tracker note: agreed was 1L' },
+  { item:'Outside Infra (less)', amount:53991, acceptedBy:'SBA Summary', netted:false, evidence:'Bunglow_19.04.26 Summary side-cell' },
+  { item:'GST waived off', amount:172346, acceptedBy:'SBA Payment tab', netted:true, evidence:'Payment row 35' },
+];
+
+const DECISIONS = [
+  { d:'Paint brand & finish (interior + exterior)', s:'Pending' },
+  { d:'Wall colour scheme — per room', s:'Pending' },
+  { d:'AC brand / tonnage / location', s:'Pending' },
+  { d:'Refrigerator brand & size', s:'Pending' },
+  { d:'Washing machine brand', s:'Pending' },
+  { d:'Chimney + Hob brand & size', s:'Pending' },
+  { d:'CCTV system (cameras + DVR + storage)', s:'Pending' },
+  { d:'Smart door lock — model', s:'Pending' },
+  { d:'Wi-Fi mesh router setup', s:'Pending' },
+  { d:'Skylight — location, size, glass type', s:'Pending' },
+  { d:'Solar panels — go / no-go', s:'Pending' },
+  { d:'Solar water heater — go / no-go', s:'Pending' },
+  { d:'Garden landscaping scope + budget', s:'Pending' },
+  { d:'Driveway gate motor + sensor type', s:'Pending' },
+  { d:'Letterbox + nameplate design', s:'Pending' },
+  { d:'Vastu / Griha Pravesh date', s:'Pending' },
+  { d:'Mercury — F1 modular kitchen final scope (₹0 in BOQ)', s:'Pending' },
+  { d:'Mercury — Section M (SF Multipurpose) verify vs K', s:'Pending' },
+  { d:'Painting contractor — confirm start date', s:'Decided', notes:'₹3.2L; cap ₹3.5L; contractor identified' },
+  { d:'Window vendor + spec', s:'Decided', notes:'₹8.10L final; 50% GST + 9% PMC refundable' },
+];
+
+const MERCURY_MILESTONES = [
+  { pct:20, desc:'On signing' },{ pct:20, desc:'Before material procurement' },{ pct:20, desc:'On carcass / framework' },
+  { pct:20, desc:'Before laminate' },{ pct:10, desc:'Final sign-off' },{ pct:10, desc:'Retention — post handover' },
+];
+
+const SPLIT_CAT = [
+  { c:'Mercury Interior', a:800000, n:2 },
+  { c:'Window / Weatherseal', a:441000, n:1 },
+  { c:'SBA labour', a:400000, n:4 },
+  { c:'Flooring labour', a:384000, n:6 },
+  { c:'SBA / Sanitaryware', a:355000, n:5 },
+  { c:'Marble', a:233826, n:4 },
+  { c:'SBA payment (direct)', a:196000, n:1 },
+  { c:'Kitchen / Godrej', a:150000, n:1 },
+  { c:'Government fees', a:139621, n:1 },
+  { c:'Tile / Granite', a:99000, n:1 },
+  { c:'Granite', a:89193, n:2 },
+  { c:'Sand', a:87717, n:2 },
+  { c:'Architect fees', a:85000, n:4 },
+  { c:'Plumbing labour', a:75000, n:2 },
+  { c:'Waterproofing', a:56887, n:1 },
+  { c:'Civil Material', a:42000, n:2 },
+  { c:'Railing (Balcony Ambaji)', a:54000, n:3 },
+  { c:'Anti-termite', a:23000, n:2 },
+  { c:'Utilities (MGVCL)', a:21222, n:1 },
+  { c:'Fabrication (Prithvi)', a:20000, n:2 },
+];
+
+const DEFAULTS = {
+  contracted: 7066219, paid: 6517165, designFee: 35500, pmcRetained: 240000, adjustments: 479120,
+  yetToExecute: 1853002, initialQuote: 7382314,
+  windowContract: 810000, windowGstPct: 18, pmcCommissionPct: 9, gstRefundPct: 50,
+  interiorContract: 2134000, interiorGstPct: 18, interiorPaid: 800000,
+  sbaStatus: {}, sbaActMat: {}, sbaActLab: {}, sbaComment: {},
+  mercStatus: {}, mercDoneDates: {}, mercComment: {}, mercPaid: [true, true, false, false, false, false],
+  unbQty: {}, unbCost: {}, unbStatus: {}, unbSpec: {},
+  adjNetted: {}, adjEvd: {}, pendingStatus: {}, pendingDate: {}, pendingNote: {},
+  decStatus: {}, decDate: {}, decNotes: {},
+};
+
+const STORAGE_KEY = 'nidhee-bungalow-v7';
+function loadState() {
+  try { const r = localStorage.getItem(STORAGE_KEY); if (r) return Object.assign({}, JSON.parse(JSON.stringify(DEFAULTS)), JSON.parse(r)); } catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULTS));
+}
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); flashSaved(); }
+let state = loadState();
+
+function fmtIN(n) {
+  if (n == null || isNaN(n)) return '0';
+  const neg = n < 0; n = Math.abs(Math.round(n));
+  const s = n.toString(); const last3 = s.slice(-3); const rest = s.slice(0, -3);
+  return (neg ? '−' : '') + (rest ? rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + last3 : last3);
+}
+function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }); }
+function computeTargetDate(s, days, type) {
+  if (!s||!days) return null;
+  const st=new Date(s);
+  if(type==='calendar'){const t=new Date(st);t.setDate(t.getDate()+days);return t;}
+  let a=0;const t=new Date(st);while(a<days){t.setDate(t.getDate()+1);if(t.getDay()!==0)a++;}return t;
+}
+function daysBetween(a,b){return Math.floor((b-a)/86400000);}
+
+function flashSaved() {
+  const b = document.getElementById('savedBadge');
+  b.textContent = 'Saved ' + new Date().toLocaleTimeString('en-IN', { hour:'numeric', minute:'2-digit' });
+  setTimeout(() => { b.textContent = 'Saved'; }, 3500);
+}
+
+const STATUS_OPTS = ['Pending','In Progress','Completed','On Hold','Delayed'];
+const UNB_STATUS_OPTS = ['Pending','Ordered','Delivered','Installed'];
+const DEC_STATUS_OPTS = ['Pending','Decided','Deferred','Cancelled'];
+const statusPill = s => s==='Completed'||s==='Installed'||s==='Decided'?'ok':(s==='In Progress'||s==='Ordered'||s==='Delivered'?'warn':(s==='Delayed'||s==='On Hold'?'bad':'gray'));
+
+function renderTabs() { document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab))); }
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id==='page-'+name));
+  window.scrollTo(0,0);
+}
+
+function renderSBA() {
+  const tb = document.getElementById('sbaBody');
+  tb.innerHTML = '';
+  let i=0, comp=0, tot=0;
+  SBA_BOQ.forEach(r => {
+    if (r.sec) {
+      const sh = document.createElement('div'); sh.className='boq-section';
+      sh.textContent = 'SECTION '+r.sec+': '+r.name; tb.appendChild(sh); return;
+    }
+    const k='sba_'+i; const cur=state.sbaStatus[k]||'Pending';
+    if(cur==='Completed')comp++; tot++;
+    const planTotal=(r.matA||0)+(r.labA||0);
+    const actTotal=(state.sbaActMat[k]||0)+(state.sbaActLab[k]||0);
+    const div=document.createElement('div'); div.className='boq-row';
+    div.innerHTML='<div class="head">'+
+      '<div class="desc"><b>'+r.sr+'. '+r.desc+'</b><div class="vals">Unit: '+r.unit+' · Qty: '+r.qty+' · <span class="pill '+statusPill(cur)+'">'+cur+'</span></div>'+
+      (r.note?'<div class="vals" style="color:var(--violet)">'+r.note+'</div>':'')+'</div>'+
+      '<div class="vals-right"><b>Plan</b><br>₹'+fmtIN(planTotal)+'<br><span style="color:var(--ink-mute);font-size:10.5px">Mat ₹'+fmtIN(r.matA)+' · Lab ₹'+fmtIN(r.labA)+'</span></div>'+
+      '<div class="vals-right"><b>Actual</b><br>₹'+fmtIN(actTotal)+'</div>'+
+      '</div>'+
+      '<div class="actuals">'+
+      '<input type="number" data-sba-actm="'+k+'" placeholder="Actual Material (₹)" value="'+(state.sbaActMat[k]||'')+'">'+
+      '<input type="number" data-sba-actl="'+k+'" placeholder="Actual Labour (₹)" value="'+(state.sbaActLab[k]||'')+'">'+
+      '</div>'+
+      '<div class="controls">'+
+      '<select data-sba-status="'+k+'">'+STATUS_OPTS.map(s=>`<option ${s===cur?'selected':''}>${s}</option>`).join('')+'</select>'+
+      '<input type="text" data-sba-comment="'+k+'" placeholder="Comment / status note" value="'+(state.sbaComment[k]||'').replace(/"/g,'&quot;')+'">'+
+      '</div>';
+    tb.appendChild(div); i++;
+  });
+  tb.querySelectorAll('[data-sba-status]').forEach(s=>s.addEventListener('change',()=>{state.sbaStatus[s.dataset.sbaStatus]=s.value;saveState();renderSBA();}));
+  tb.querySelectorAll('[data-sba-actm]').forEach(i=>i.addEventListener('input',()=>{state.sbaActMat[i.dataset.sbaActm]=parseFloat(i.value)||0;saveState();}));
+  tb.querySelectorAll('[data-sba-actl]').forEach(i=>i.addEventListener('input',()=>{state.sbaActLab[i.dataset.sbaActl]=parseFloat(i.value)||0;saveState();}));
+  tb.querySelectorAll('[data-sba-comment]').forEach(i=>i.addEventListener('input',()=>{state.sbaComment[i.dataset.sbaComment]=i.value;saveState();}));
+  document.getElementById('sbaProgressMini').textContent=comp+'/'+tot+' completed';
+}
+
+function renderMerc() {
+  const tb=document.getElementById('mercBody'); tb.innerHTML='';
+  let tot=0,done=0,doneAmt=0,totAmt=0;
+  MERC_BOQ.forEach((r,i)=>{
+    if(r.name){const sh=document.createElement('div');sh.className='boq-section merc';sh.textContent=r.code+'. '+r.name;tb.appendChild(sh);return;}
+    tot++; totAmt+=r.amt;
+    const k='merc_'+i; const cur=state.mercStatus[k]||'Pending';
+    if(cur==='Completed'){done++;doneAmt+=r.amt;}
+    const div=document.createElement('div'); div.className='boq-row';
+    div.innerHTML='<div class="head">'+
+      '<div class="desc"><b>'+r.code+'. '+r.item+'</b><div class="vals">Unit: '+r.unit+' · Qty: '+r.qty+' · Rate: ₹'+fmtIN(r.rate)+' · <span class="pill '+statusPill(cur)+'">'+cur+'</span></div></div>'+
+      '<div class="vals-right"><b>Amount</b><br>₹'+fmtIN(r.amt)+'</div>'+
+      '<div class="vals-right"><b>Done</b><br>'+(state.mercDoneDates[k]||'—')+'</div>'+
+      '</div>'+
+      '<div class="controls">'+
+      '<select data-merc-status="'+k+'">'+STATUS_OPTS.map(s=>`<option ${s===cur?'selected':''}>${s}</option>`).join('')+'</select>'+
+      '<input type="date" data-merc-date="'+k+'" value="'+(state.mercDoneDates[k]||'')+'">'+
+      '<input type="text" data-merc-comment="'+k+'" placeholder="Comment" value="'+(state.mercComment[k]||'').replace(/"/g,'&quot;')+'" style="flex:3">'+
+      '</div>';
+    tb.appendChild(div);
+  });
+  tb.querySelectorAll('[data-merc-status]').forEach(s=>s.addEventListener('change',()=>{state.mercStatus[s.dataset.mercStatus]=s.value;if(s.value==='Completed'&&!state.mercDoneDates[s.dataset.mercStatus])state.mercDoneDates[s.dataset.mercStatus]=new Date().toISOString().slice(0,10);saveState();renderMerc();}));
+  tb.querySelectorAll('[data-merc-date]').forEach(i=>i.addEventListener('change',()=>{state.mercDoneDates[i.dataset.mercDate]=i.value;saveState();}));
+  tb.querySelectorAll('[data-merc-comment]').forEach(i=>i.addEventListener('input',()=>{state.mercComment[i.dataset.mercComment]=i.value;saveState();}));
+  document.getElementById('mercProgressMini').textContent=done+'/'+tot+' · ₹'+fmtIN(doneAmt)+' / ₹'+fmtIN(totAmt)+' ('+((doneAmt/totAmt)*100).toFixed(1)+'%)';
+
+  // Milestones
+  const mel=document.getElementById('mercMilestones'); mel.innerHTML='';
+  const total = state.interiorContract + state.interiorContract*state.interiorGstPct/100;
+  MERCURY_MILESTONES.forEach((m,i)=>{
+    const amt = total*m.pct/100; const isPaid = state.mercPaid[i];
+    const row=document.createElement('div');
+    row.style.cssText='display:grid;grid-template-columns:40px 1fr 110px 90px 28px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px';
+    if(isPaid)row.style.opacity='.6';
+    row.innerHTML='<div style="font-weight:700;color:var(--brand)">'+m.pct+'%</div>'+
+      '<div>'+m.desc+'</div>'+
+      '<div style="text-align:right;font-variant-numeric:tabular-nums">₹'+fmtIN(amt)+'</div>'+
+      '<div style="text-align:right"><span class="pill '+(isPaid?'ok':'gray')+'">'+(isPaid?'Paid':'Pending')+'</span></div>'+
+      '<div><div class="chk" data-mp="'+i+'" style="width:22px;height:22px;border:1.5px solid #cbd2dc;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;'+(isPaid?'background:var(--ok);border-color:var(--ok);color:#fff;font-weight:bold':'')+'">'+(isPaid?'✓':'')+'</div></div>';
+    mel.appendChild(row);
+  });
+  mel.querySelectorAll('[data-mp]').forEach(c=>c.addEventListener('click',()=>{state.mercPaid[+c.dataset.mp]=!state.mercPaid[+c.dataset.mp];saveState();renderMerc();}));
+}
+
+function renderUnb() {
+  const tb=document.getElementById('unbBody'); tb.innerHTML='';
+  let totSpent=0, totPend=0, totProg=0, totDone=0;
+  UNB_SCOPE.forEach((cat,ci)=>{
+    const sec=document.createElement('div');
+    sec.style.cssText='background:#f3f4f6;padding:8px 12px;font-weight:700;color:var(--brand);font-size:12px;text-transform:uppercase;letter-spacing:.04em;margin-top:14px;border-radius:6px';
+    sec.textContent=cat.cat; tb.appendChild(sec);
+    const hdr=document.createElement('div'); hdr.className='unbudg-row head';
+    hdr.innerHTML='<div>Sr</div><div>Details</div><div>Qty</div><div class="h-spec">Spec</div><div>Cost/Item</div><div>Total</div><div>Status</div>';
+    tb.appendChild(hdr);
+    cat.items.forEach((it,ii)=>{
+      const k='u_'+ci+'_'+ii;
+      const qty=state.unbQty[k]!=null?state.unbQty[k]:it.qty;
+      const cost=state.unbCost[k]||0;
+      const tot=(parseFloat(qty)||0)*cost;
+      totSpent+=tot;
+      const cur=state.unbStatus[k]||'Pending';
+      if(cur==='Pending')totPend++; else if(cur==='Installed')totDone++; else totProg++;
+      const row=document.createElement('div'); row.className='unbudg-row';
+      row.innerHTML='<div>'+(ii+1)+'.</div>'+
+        '<div>'+it.details+'</div>'+
+        '<div><input type="text" data-unb-qty="'+k+'" value="'+qty+'" style="width:100%"></div>'+
+        '<div class="v-spec"><input type="text" data-unb-spec="'+k+'" placeholder="'+(it.spec||'')+'" value="'+(state.unbSpec[k]||it.spec||'').replace(/"/g,'&quot;')+'" style="width:100%"></div>'+
+        '<div><input type="number" data-unb-cost="'+k+'" value="'+(cost||'')+'" placeholder="₹/item" style="width:100%"></div>'+
+        '<div class="total">'+(tot>0?'₹'+fmtIN(tot):'—')+'</div>'+
+        '<div><select data-unb-status="'+k+'">'+UNB_STATUS_OPTS.map(s=>`<option ${s===cur?'selected':''}>${s}</option>`).join('')+'</select></div>';
+      tb.appendChild(row);
+    });
+  });
+  tb.querySelectorAll('[data-unb-qty]').forEach(i=>i.addEventListener('input',()=>{state.unbQty[i.dataset.unbQty]=i.value;saveState();renderUnb();render();}));
+  tb.querySelectorAll('[data-unb-spec]').forEach(i=>i.addEventListener('input',()=>{state.unbSpec[i.dataset.unbSpec]=i.value;saveState();}));
+  tb.querySelectorAll('[data-unb-cost]').forEach(i=>i.addEventListener('input',()=>{state.unbCost[i.dataset.unbCost]=parseFloat(i.value)||0;saveState();renderUnb();render();}));
+  tb.querySelectorAll('[data-unb-status]').forEach(s=>s.addEventListener('change',()=>{state.unbStatus[s.dataset.unbStatus]=s.value;saveState();renderUnb();}));
+  document.getElementById('unbTotalKpi').textContent='₹'+fmtIN(totSpent);
+  document.getElementById('unbPendKpi').textContent=totPend;
+  document.getElementById('unbInProgKpi').textContent=totProg;
+  document.getElementById('unbDoneKpi').textContent=totDone;
+  document.getElementById('unbTotalMoney').textContent=fmtIN(totSpent);
+  return totSpent;
+}
+
+
+
+const SBA_PVA_SECTIONS = [
+  { name:'Civil Works', plan: 3530966, actual: 4081265 },
+  { name:'Flooring/Doors', plan: 1268036, actual: 977558 },
+  { name:'Waterproofing', plan: 216840, actual: 79688 },
+  { name:'Painting', plan: 486892, actual: 0 },
+  { name:'Plumbing', plan: 541300, actual: 538856 },
+  { name:'Door/Window', plan: 474110, actual: 405000 },
+  { name:'Electric', plan: 287980, actual: 211429 },
+  { name:'Fabrication', plan: 176190, actual: 34800 },
+  { name:'Civil External', plan: 340000, actual: 172789 },
+  { name:'Railing', plan: 60000, actual: 54000 },
+  { name:'Anti Termite', plan: 0, actual: 27800 },
+  { name:'Godhrej (Kitchen)', plan: 0, actual: 177035 },
+  { name:'PMC Fee', plan: 600000, actual: 360000 },
+];
+let sbaPVAChart = null;
+function drawSbaPVAChart() {
+  const el = document.getElementById('sbaPVAChart');
+  if (!el) return;
+  if (sbaPVAChart) sbaPVAChart.destroy();
+  sbaPVAChart = new Chart(el, {
+    type: 'bar',
+    data: {
+      labels: SBA_PVA_SECTIONS.map(s => s.name),
+      datasets: [
+        { label: 'Plan (₹)', data: SBA_PVA_SECTIONS.map(s => s.plan), backgroundColor: '#1f4e78', borderRadius: 4 },
+        { label: 'Actual (₹)', data: SBA_PVA_SECTIONS.map(s => s.actual), backgroundColor: '#047857', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { font: {size: 12} } },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ₹' + fmtIN(ctx.parsed.y) } }
+      },
+      scales: {
+        x: { ticks: { font: {size: 10}, maxRotation: 45, minRotation: 30 }, grid: { display: false } },
+        y: {
+          ticks: { callback: v => '₹' + (v >= 100000 ? (v/100000).toFixed(1) + 'L' : (v/1000).toFixed(0) + 'K'), font: {size: 11} },
+          grid: { color: 'var(--line-soft)' }
+        }
+      }
+    }
+  });
+}
+
+function renderPendingItems() {
+  const el = document.getElementById('pendingList');
+  if (!el) return;
+  el.innerHTML = '';
+  let done = 0;
+  SBA_PENDING_ITEMS.forEach((p, i) => {
+    const k = 'pend_' + i;
+    const status = state.pendingStatus?.[k] || 'Pending';
+    const isDone = status === 'Completed';
+    if (isDone) done++;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:30px 1fr 110px 130px 1fr;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px';
+    if (isDone) row.style.opacity = '.55';
+    row.innerHTML =
+      '<div><div class="chk" data-pend="' + k + '" style="width:22px;height:22px;border:1.5px solid #cbd2dc;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;' + (isDone ? 'background:var(--ok);border-color:var(--ok);color:#fff;font-weight:bold' : '') + '">' + (isDone ? '✓' : '') + '</div></div>' +
+      '<div>' + (i+1) + '. ' + p.item + '<span class="pill gray" style="margin-left:6px">' + p.cat + '</span></div>' +
+      '<div><select data-pend-s="' + k + '">' + STATUS_OPTS.map(s => `<option ${s===status?'selected':''}>${s}</option>`).join('') + '</select></div>' +
+      '<div><input type="date" data-pend-d="' + k + '" value="' + (state.pendingDate?.[k] || '') + '" placeholder="Promised by"></div>' +
+      '<div><input type="text" data-pend-c="' + k + '" placeholder="Note / SBA comment" value="' + (state.pendingNote?.[k] || '').replace(/"/g, '&quot;') + '"></div>';
+    el.appendChild(row);
+  });
+  document.getElementById('pendingProgress').innerHTML =
+    '<b>' + done + '/' + SBA_PENDING_ITEMS.length + '</b> items closed (' + (done/SBA_PENDING_ITEMS.length*100).toFixed(0) + '%)';
+  el.querySelectorAll('[data-pend]').forEach(c => c.addEventListener('click', () => {
+    if (!state.pendingStatus) state.pendingStatus = {};
+    const k = c.dataset.pend;
+    state.pendingStatus[k] = state.pendingStatus[k] === 'Completed' ? 'Pending' : 'Completed';
+    saveState(); renderPendingItems();
+  }));
+  el.querySelectorAll('[data-pend-s]').forEach(s => s.addEventListener('change', () => {
+    if (!state.pendingStatus) state.pendingStatus = {};
+    state.pendingStatus[s.dataset.pendS] = s.value;
+    saveState(); renderPendingItems();
+  }));
+  el.querySelectorAll('[data-pend-d]').forEach(i => i.addEventListener('change', () => {
+    if (!state.pendingDate) state.pendingDate = {};
+    state.pendingDate[i.dataset.pendD] = i.value; saveState();
+  }));
+  el.querySelectorAll('[data-pend-c]').forEach(i => i.addEventListener('input', () => {
+    if (!state.pendingNote) state.pendingNote = {};
+    state.pendingNote[i.dataset.pendC] = i.value; saveState();
+  }));
+}
+
+function drawTimelineGraph() {
+  const el = document.getElementById('timelineGraph');
+  if (!el) return;
+  // Date range: 1 Apr 2025 to 1 Aug 2026
+  const start = new Date('2025-04-01');
+  const end = new Date('2026-08-01');
+  const total = end - start;
+  const today = TODAY;
+  const milestones = [
+    { d: new Date('2025-12-31'), label: 'Original commitment', color: '#ef4444' },
+    { d: new Date('2026-01-31'), label: 'Revised commitment', color: '#f59e0b' },
+    { d: computeTargetDate('2025-04-01', 300, 'working'), label: 'Contractual target', color: '#b45309' },
+  ];
+  let html = '<div style="position:absolute;top:14px;left:14px;right:14px;font-size:10.5px;color:var(--ink-mute);font-weight:700;text-transform:uppercase">';
+  html += '<span>1 Apr 2025</span><span style="float:right">1 Aug 2026</span></div>';
+  // Track
+  html += '<div style="position:absolute;top:50px;left:14px;right:14px;height:14px;background:linear-gradient(90deg,#86efac 0%,#fde68a 60%,#fca5a5 100%);border-radius:7px"></div>';
+  // Today marker
+  const todayPct = ((today - start) / total * 100);
+  html += '<div style="position:absolute;top:30px;bottom:14px;left:calc(14px + (100% - 28px) * ' + (todayPct/100) + ');width:2px;background:#0f2540;z-index:5"></div>';
+  html += '<div style="position:absolute;top:18px;left:calc(14px + (100% - 28px) * ' + (todayPct/100) + ');transform:translateX(-50%);font-size:11px;font-weight:700;color:#0f2540;background:#fff;padding:1px 6px;border-radius:4px;border:1px solid #0f2540;z-index:5">TODAY 17 May</div>';
+  // Milestone markers
+  milestones.forEach((m, i) => {
+    const pct = ((m.d - start) / total * 100);
+    const top = 75 + i * 22;
+    html += '<div style="position:absolute;top:50px;left:calc(14px + (100% - 28px) * ' + (pct/100) + ');transform:translateX(-50%);width:14px;height:14px;background:' + m.color + ';border-radius:50%;border:2px solid #fff;z-index:3"></div>';
+    html += '<div style="position:absolute;top:' + top + 'px;left:calc(14px + (100% - 28px) * ' + (pct/100) + ');transform:translateX(-50%);font-size:10.5px;color:' + m.color + ';font-weight:600;white-space:nowrap">' + m.label + '<br><span style="font-weight:400;color:var(--ink-mute)">' + fmtDate(m.d) + '</span></div>';
+  });
+  el.innerHTML = html;
+}
+
+function renderTimeline() {
+  const b1=new Date('2025-12-31'), b2=new Date('2026-01-31');
+  const b3=computeTargetDate('2025-04-01',300,'working');
+  const d1=daysBetween(b1,TODAY), d2=daysBetween(b2,TODAY), d3=b3?daysBetween(b3,TODAY):0;
+  document.getElementById('b1delta').innerHTML=d1>0?'<span style="color:var(--bad)">Overrun '+d1+' days</span>':'<span style="color:var(--ok)">'+Math.abs(d1)+'d remaining</span>';
+  document.getElementById('b2delta').innerHTML=d2>0?'<span style="color:var(--bad)">Overrun '+d2+' days</span>':'<span style="color:var(--ok)">'+Math.abs(d2)+'d remaining</span>';
+  document.getElementById('b3date').textContent=b3?fmtDate(b3):'—';
+  document.getElementById('b3delta').innerHTML=d3>0?'<span style="color:var(--bad)">Overrun '+d3+' days</span>':'<span style="color:var(--ok)">'+Math.abs(d3)+'d remaining</span>';
+  // Penalty
+  const maxDelta=Math.max(d1,d2,d3);
+  document.getElementById('sbaPenMax').textContent='₹'+fmtIN(Math.max(0,maxDelta)*2000)+' ('+Math.max(0,maxDelta)+' days × ₹2,000)';
+  const mercTarget=computeTargetDate('2026-04-16',75,'calendar');
+  const mercDelta=daysBetween(mercTarget,TODAY);
+  document.getElementById('mercPenamt').textContent=mercDelta>0?'₹'+fmtIN(mercDelta*1000)+' ('+mercDelta+' days × ₹1,000)':'On time';
+}
+
+function renderAdj() {
+  const tb=document.getElementById('adjBody'); tb.innerHTML='';
+  ADJUSTMENTS.forEach((a,i)=>{
+    const k='adj_'+i;
+    const netted=state.adjNetted[k]!=null?state.adjNetted[k]:a.netted;
+    const evd=state.adjEvd[k]||a.evidence||'';
+    const row=document.createElement('div'); row.className='adj-row';
+    row.innerHTML='<div>'+a.item+'</div>'+
+      '<div class="amt">₹'+fmtIN(a.amount)+'</div>'+
+      '<div class="v-by">'+a.acceptedBy+'</div>'+
+      '<div><select data-adj-n="'+k+'"><option value="false" '+(!netted?'selected':'')+'>No</option><option value="true" '+(netted?'selected':'')+'>Yes</option></select></div>'+
+      '<div class="v-evd"><input type="text" data-adj-e="'+k+'" placeholder="Email / WA / signed" value="'+evd.replace(/"/g,'&quot;')+'"></div>';
+    tb.appendChild(row);
+  });
+  tb.querySelectorAll('[data-adj-n]').forEach(s=>s.addEventListener('change',()=>{state.adjNetted[s.dataset.adjN]=s.value==='true';saveState();}));
+  tb.querySelectorAll('[data-adj-e]').forEach(i=>i.addEventListener('input',()=>{state.adjEvd[i.dataset.adjE]=i.value;saveState();}));
+}
+
+function renderDec() {
+  const tb=document.getElementById('decBody'); tb.innerHTML='';
+  DECISIONS.forEach((d,i)=>{
+    const k='dec_'+i;
+    const status=state.decStatus[k]||d.s||'Pending';
+    const date=state.decDate[k]||'';
+    const notes=state.decNotes[k]||d.notes||'';
+    const row=document.createElement('div'); row.className='dec-row';
+    row.innerHTML='<div>'+d.d+'</div>'+
+      '<div><select data-dec-s="'+k+'">'+DEC_STATUS_OPTS.map(s=>`<option ${s===status?'selected':''}>${s}</option>`).join('')+'</select></div>'+
+      '<div><input type="date" data-dec-d="'+k+'" value="'+date+'"></div>'+
+      '<div class="v-notes"><input type="text" data-dec-n="'+k+'" placeholder="Reference / Notes" value="'+notes.replace(/"/g,'&quot;')+'"></div>';
+    tb.appendChild(row);
+  });
+  tb.querySelectorAll('[data-dec-s]').forEach(s=>s.addEventListener('change',()=>{state.decStatus[s.dataset.decS]=s.value;saveState();}));
+  tb.querySelectorAll('[data-dec-d]').forEach(i=>i.addEventListener('change',()=>{state.decDate[i.dataset.decD]=i.value;saveState();}));
+  tb.querySelectorAll('[data-dec-n]').forEach(i=>i.addEventListener('input',()=>{state.decNotes[i.dataset.decN]=i.value;saveState();}));
+}
+
+function renderSplit() {
+  const tb=document.getElementById('splitCatBody'); tb.innerHTML='';
+  SPLIT_CAT.forEach(c=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+c.c+'</td><td class="right money">₹'+fmtIN(c.a)+'</td><td class="right">'+c.n+'</td>';
+    tb.appendChild(tr);
+  });
+}
+
+let moneyChart=null;
+function drawMoneyChart(pending,totalRefunds,unbTot) {
+  if(moneyChart)moneyChart.destroy();
+  const intGst=state.interiorContract*state.interiorGstPct/100;
+  const intBal=state.interiorContract+intGst-state.interiorPaid;
+  moneyChart=new Chart(document.getElementById('moneyChart'),{
+    type:'doughnut',
+    data:{labels:['SBA paid','Mercury paid','SBA balance','Mercury balance','SBA yet','Variations','Refunds'],
+      datasets:[{data:[state.paid,state.interiorPaid,pending,intBal,state.yetToExecute,unbTot,totalRefunds],
+        backgroundColor:['#047857','#7c3aed','#f59e0b','#a78bfa','#ef4444','#6b7280','#10b981'],borderColor:'#fff',borderWidth:2}]},
+    options:{cutout:'58%',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'right',labels:{font:{size:11},padding:6,boxWidth:10}},
+        tooltip:{callbacks:{label:ctx=>ctx.label+': ₹'+fmtIN(ctx.parsed)}}}}
+  });
+}
+
+function render() {
+  const winBase=state.windowContract;
+  const winGst=winBase*state.windowGstPct/100;
+  const winGstRefund=winGst*state.gstRefundPct/100;
+  const pmcComm=winBase*state.pmcCommissionPct/100;
+  const pmcCommGst=pmcComm*state.windowGstPct/100;
+  const pmcCommGstRefund=pmcCommGst*state.gstRefundPct/100;
+  const pmcCommReturn=pmcComm;
+  const interiorGst=state.interiorContract*state.interiorGstPct/100;
+  const interiorGstRefund=interiorGst*state.gstRefundPct/100;
+  const interiorBalance=(state.interiorContract+interiorGst)-state.interiorPaid;
+  const balance=state.contracted-state.paid;
+  const pending=balance+state.designFee;
+  const unbTot=renderUnb();
+  const totalSpend=state.contracted+state.interiorContract+interiorGst+unbTot;
+  const totalPaid=state.paid+state.interiorPaid;
+  const totalRefunds=state.adjustments+winGstRefund+pmcCommGstRefund+pmcCommReturn+interiorGstRefund;
+  const netExposure=pending+interiorBalance+state.yetToExecute+unbTot-totalRefunds;
+  // Canonical "Current Approved Cost"
+  const canon=state.contracted + (state.interiorContract+interiorGst) + unbTot + 336000 - state.adjustments - (winGstRefund+pmcCommGstRefund+interiorGstRefund) - pmcCommReturn;
+
+  document.querySelectorAll('.editable[data-key]').forEach(el=>el.textContent=fmtIN(state[el.dataset.key]));
+  document.getElementById('canonTotal').textContent=fmtIN(canon);
+  document.getElementById('canonTotal2').textContent=fmtIN(canon);
+  document.getElementById('totalSpend').textContent=fmtIN(totalSpend);
+  document.getElementById('totalPaid').textContent=fmtIN(totalPaid);
+  document.getElementById('pendingNow').textContent=fmtIN(pending);
+  document.getElementById('yetToExec').textContent=fmtIN(state.yetToExecute);
+  document.getElementById('totalRefunds').textContent=fmtIN(totalRefunds);
+  document.getElementById('netExposure').textContent=fmtIN(netExposure);
+  document.getElementById('netExposure2').textContent=fmtIN(netExposure);
+  const paidPct=totalSpend?(totalPaid/totalSpend*100):0;
+  document.getElementById('paidBar').style.width=paidPct+'%';
+  document.getElementById('paidHint').textContent=paidPct.toFixed(1)+'% of total';
+  document.getElementById('balanceMoney').textContent=fmtIN(balance);
+  document.getElementById('mercBalOv').textContent=fmtIN(interiorBalance);
+  document.getElementById('adjOv').textContent=fmtIN(state.adjustments);
+  document.getElementById('refundsOv').textContent=fmtIN(winGstRefund+pmcCommGstRefund+interiorGstRefund+pmcCommReturn);
+  document.getElementById('sbaBalance').textContent=fmtIN(pending);
+  document.getElementById('interiorGst').textContent=fmtIN(interiorGst);
+  document.getElementById('interiorBalance').textContent=fmtIN(interiorBalance);
+  document.getElementById('interiorPaidHint').textContent=(state.interiorPaid/state.interiorContract*100).toFixed(1)+'% paid';
+  document.getElementById('mercInclGst').textContent=fmtIN(state.interiorContract+interiorGst);
+  document.getElementById('gstRefundTotal').textContent=fmtIN(winGstRefund+pmcCommGstRefund+interiorGstRefund);
+  document.getElementById('pmcCommReturn').textContent=fmtIN(pmcCommReturn);
+  // Window
+  document.getElementById('winBaseAmt').textContent=fmtIN(winBase);
+  document.getElementById('winGstAmt').textContent=fmtIN(winGst);
+  document.getElementById('winGstRef').textContent=fmtIN(winGstRefund);
+  document.getElementById('pmcCommAmt').textContent=fmtIN(pmcComm);
+  document.getElementById('pmcCommGstAmt').textContent=fmtIN(pmcCommGst);
+  document.getElementById('pmcCommGstRef').textContent=fmtIN(pmcCommGstRefund);
+  document.getElementById('pmcCommBack').textContent=fmtIN(pmcComm);
+  document.getElementById('winNet').textContent=fmtIN(winBase+winGst+pmcComm+pmcCommGst-winGstRefund-pmcCommGstRefund-pmcCommReturn);
+  // 10% saving
+  const target=state.initialQuote*0.9;
+  const projected=state.paid+state.yetToExecute;
+  const savPct=state.initialQuote?(1-projected/state.initialQuote)*100:0;
+  document.getElementById('targetSpend').textContent=fmtIN(target);
+  document.getElementById('projectedSpend').textContent=fmtIN(projected);
+  const progress=Math.min(100,Math.max(0,savPct/10*100));
+  const pb=document.getElementById('savingProgress');
+  pb.querySelector('div').style.width=progress+'%';
+  pb.className='pb'+(savPct>=10?'':savPct>=5?' warn':' bad');
+  const sh=document.getElementById('savingHint');
+  if(savPct>=10)sh.innerHTML='<b style="color:var(--ok)">✓ '+savPct.toFixed(1)+'% saving — promise met</b>';
+  else if(savPct>0)sh.innerHTML=savPct.toFixed(1)+'% saving — <b>below 10% target</b>';
+  else sh.innerHTML='<b style="color:var(--bad)">Over budget</b>';
+
+  drawMoneyChart(pending,totalRefunds,unbTot);
+  renderSBA(); renderMerc(); renderTimeline(); renderAdj(); renderDec(); renderSplit();
+  renderPendingItems(); drawTimelineGraph(); drawSbaPVAChart();
+}
+
+document.addEventListener('click', e=>{
+  const el=e.target.closest('.editable[data-key]'); if(!el)return;
+  if(el.querySelector('input'))return;
+  const key=el.dataset.key;
+  const input=document.createElement('input');
+  input.type='number'; input.value=state[key]; input.className='num-input';
+  el.textContent=''; el.appendChild(input); input.focus(); input.select();
+  function commit(){const v=parseFloat(input.value);if(!isNaN(v)){state[key]=v;saveState();}render();}
+  input.addEventListener('blur',commit);
+  input.addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();input.blur();}if(ev.key==='Escape'){ev.preventDefault();render();}});
+});
+
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  if(!confirm('Reset all values? Edits lost.'))return;
+  state=JSON.parse(JSON.stringify(DEFAULTS));
+  localStorage.removeItem(STORAGE_KEY); render(); flashSaved();
+});
+document.getElementById('printBtn').addEventListener('click',()=>window.print());
+
+function toggleScope(p){const b=document.getElementById(p+'-body'),a=document.getElementById(p+'Arrow');b.classList.toggle('collapsed');a.textContent=b.classList.contains('collapsed')?'▸':'▾';}
+window.toggleScope=toggleScope;
+
+renderTabs(); render();
+</script>
+</body>
+</html>
