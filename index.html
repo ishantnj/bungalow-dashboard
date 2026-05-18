@@ -151,7 +151,7 @@ details.note .body{padding:8px 0 12px;font-size:12.5px;line-height:1.55}
 <!-- ========== OVERVIEW ========== -->
 <div class="page active" id="page-overview">
   <div class="brief">
-    <h3>Project Brief — 17 May 2026</h3>
+    <h3>Project Brief — 18 May 2026</h3>
     <div class="bigtotal">Current Approved Cost: ₹<span id="canonTotal"></span></div>
     <div class="canon">= SBA Contracted + Mercury Interior + Variations − Adjustments/Reversals</div>
   </div>
@@ -457,7 +457,7 @@ details.note .body{padding:8px 0 12px;font-size:12.5px;line-height:1.55}
 </div>
 
 <script>
-const TODAY = new Date('2026-05-17');
+const TODAY = new Date('2026-05-18');
 
 const SBA_BOQ = [
   { sec:1, name:'CIVIL WORKS' },
@@ -610,6 +610,7 @@ const UNB_SCOPE = [
     { details:'Ceiling fans', qty:7, spec:'all rooms' },
     { details:'Standing/wall fans', qty:'', spec:'utility / outdoor' },
     { details:'Split AC', qty:5, spec:'1.5T inverter' },
+    { details:'AC piping (copper pre-install) — paid 18 May', qty:1, spec:'5 AC units covered', cost:40000 },
     { details:'Geysers', qty:4, spec:'15L' },
     { details:'Exhaust fans', qty:5, spec:'bathrooms + kitchen' },
     { details:'Chimney + Hob', qty:1, spec:'' },
@@ -856,7 +857,7 @@ function renderUnb() {
     cat.items.forEach((it,ii)=>{
       const k='u_'+ci+'_'+ii;
       const qty=state.unbQty[k]!=null?state.unbQty[k]:it.qty;
-      const cost=state.unbCost[k]||0;
+      const cost=state.unbCost[k]!=null?state.unbCost[k]:(it.cost||0);
       const tot=(parseFloat(qty)||0)*cost;
       totSpent+=tot;
       const cur=state.unbStatus[k]||'Pending';
@@ -996,7 +997,7 @@ function drawTimelineGraph() {
   // Today marker
   const todayPct = ((today - start) / total * 100);
   html += '<div style="position:absolute;top:30px;bottom:14px;left:calc(14px + (100% - 28px) * ' + (todayPct/100) + ');width:2px;background:#0f2540;z-index:5"></div>';
-  html += '<div style="position:absolute;top:18px;left:calc(14px + (100% - 28px) * ' + (todayPct/100) + ');transform:translateX(-50%);font-size:11px;font-weight:700;color:#0f2540;background:#fff;padding:1px 6px;border-radius:4px;border:1px solid #0f2540;z-index:5">TODAY 17 May</div>';
+  html += '<div style="position:absolute;top:18px;left:calc(14px + (100% - 28px) * ' + (todayPct/100) + ');transform:translateX(-50%);font-size:11px;font-weight:700;color:#0f2540;background:#fff;padding:1px 6px;border-radius:4px;border:1px solid #0f2540;z-index:5">TODAY 18 May</div>';
   // Milestone markers
   milestones.forEach((m, i) => {
     const pct = ((m.d - start) / total * 100);
